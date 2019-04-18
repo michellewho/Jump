@@ -26,35 +26,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func layoutScene() {
         backgroundColor = LayoutProperties.backgroundColor
         physicsWorld.contactDelegate = self
-        addPlatforms()
         addRandomPlatforms()
+        addStartingPlatform()
         spawnBall()
     }
     
     func addRandomPlatforms() {
-//        let num = arc4random_uniform(UInt32(1..4))
-//        for i in 1...num {
-//            let newBar = SKSpriteNode(texture: SKTexture(imageNamed: "bar"), size: CGSize(width: 100.0, height: 30.0))
-//
-//        }
-        
-
+        let num = Int.random(in: 2 ... 5)
+        for _ in 1...num {
+            let x = CGFloat.random(in: frame.minX ... frame.maxX)
+            let y = CGFloat.random(in: frame.minY ... frame.maxY)
+            let newBar = Bar(color: UIColor.red, position: CGPoint(x: x, y: y))
+            addChild(newBar.spritenode)
+        }
     }
     
-    func addPlatforms() {
-        let bar = SKSpriteNode(texture: SKTexture(imageNamed: "bar"), size: CGSize(width: 100.0, height: 30.0))
-        bar.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 100.0, height: 30.0))
-        bar.physicsBody?.categoryBitMask = PhysicsCategories.barCategory
-        bar.physicsBody?.contactTestBitMask = PhysicsCategories.ballCategory
-        bar.name = "Bar"
-        bar.position = CGPoint(x: frame.midX, y: frame.maxY / 4)
-        bar.zPosition = 3
-        bar.physicsBody?.friction = 0
-        bar.physicsBody?.restitution = 1.0
-        bar.physicsBody?.isDynamic = false
-        bar.physicsBody?.affectedByGravity = false
-       
-        addChild(bar)
+    func addStartingPlatform() {
+        let bar = Bar(color: UIColor.red, position: CGPoint(x: frame.midX, y: frame.maxY / 4))
+        addChild(bar.spritenode)
     }
     
     func spawnBall() {
