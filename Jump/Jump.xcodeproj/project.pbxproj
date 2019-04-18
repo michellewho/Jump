@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		F49B510A225EDC3800E8E927 /* MenuScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49B5109225EDC3800E8E927 /* MenuScene.swift */; };
 		F49B510C225EDEE000E8E927 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49B510B225EDEE000E8E927 /* Settings.swift */; };
+		F49B510E2269150300E8E927 /* Bar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49B510D2269150300E8E927 /* Bar.swift */; };
 		F4C0AD8C225E73C3004254C8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C0AD8B225E73C3004254C8 /* AppDelegate.swift */; };
 		F4C0AD8E225E73C3004254C8 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = F4C0AD8D225E73C3004254C8 /* GameScene.sks */; };
 		F4C0AD90225E73C3004254C8 /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = F4C0AD8F225E73C3004254C8 /* Actions.sks */; };
@@ -22,6 +23,7 @@
 /* Begin PBXFileReference section */
 		F49B5109225EDC3800E8E927 /* MenuScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuScene.swift; sourceTree = "<group>"; };
 		F49B510B225EDEE000E8E927 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		F49B510D2269150300E8E927 /* Bar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bar.swift; sourceTree = "<group>"; };
 		F4C0AD88225E73C3004254C8 /* Jump.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Jump.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4C0AD8B225E73C3004254C8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F4C0AD8D225E73C3004254C8 /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
@@ -75,6 +77,7 @@
 				F4C0AD9D225E73C4004254C8 /* Info.plist */,
 				F49B5109225EDC3800E8E927 /* MenuScene.swift */,
 				F49B510B225EDEE000E8E927 /* Settings.swift */,
+				F49B510D2269150300E8E927 /* Bar.swift */,
 			);
 			path = Jump;
 			sourceTree = "<group>";
@@ -153,6 +156,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4C0AD92225E73C3004254C8 /* GameScene.swift in Sources */,
+				F49B510E2269150300E8E927 /* Bar.swift in Sources */,
 				F49B510A225EDC3800E8E927 /* MenuScene.swift in Sources */,
 				F4C0AD94225E73C3004254C8 /* GameViewController.swift in Sources */,
 				F4C0AD8C225E73C3004254C8 /* AppDelegate.swift in Sources */,
