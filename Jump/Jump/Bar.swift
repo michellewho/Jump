@@ -12,7 +12,9 @@ class Bar {
     var spritenode: SKSpriteNode!
     
     init(color: UIColor, position: CGPoint) {
-        spritenode = SKSpriteNode(texture: SKTexture(imageNamed: "bar"), color: color, size: CGSize(width: 100.0, height: 30.0))
+        spritenode = SKSpriteNode(texture: SKTexture(imageNamed: "bar"), size: CGSize(width: 100.0, height: 30.0))
+        spritenode.colorBlendFactor = 1
+        spritenode.color = color
         spritenode.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 100.0, height: 30.0))
         spritenode.physicsBody?.categoryBitMask = PhysicsCategories.barCategory
         spritenode.physicsBody?.contactTestBitMask = PhysicsCategories.ballCategory
