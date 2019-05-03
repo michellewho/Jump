@@ -15,9 +15,12 @@ class Bar {
         spritenode = SKSpriteNode(texture: SKTexture(imageNamed: "bar"), size: CGSize(width: 100.0, height: 30.0))
         spritenode.colorBlendFactor = 1
         spritenode.color = color
+        
         spritenode.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 100.0, height: 30.0))
         spritenode.physicsBody?.categoryBitMask = PhysicsCategories.barCategory
         spritenode.physicsBody?.contactTestBitMask = PhysicsCategories.ballCategory
+        spritenode.physicsBody?.collisionBitMask = 0
+        
         spritenode.name = "Bar"
         spritenode.position = position
         spritenode.zPosition = 3

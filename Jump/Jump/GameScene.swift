@@ -23,7 +23,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func didMove(to view: SKView) {
         print("start game")
         layoutScene()
+        motionManager.startAccelerometerUpdates()
 
+    }
+    
+    override func update(_ currentTime: TimeInterval) {
+        processUserMotion(forUpdate: currentTime)
+        enumerateChildNodes(withName: "Bar") {bar,_ in
+            if !self.intersects(bar) {
+                bar.removeFromParent()
+            }
+        }
     }
     
     func layoutScene() {
@@ -34,6 +44,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         spawnBall()
     }
     
+    func processUserMotion(forUpdate currentTime: CFTimeInterval) {
+        if let ball = childNode(withName: "Ball") as? SKSpriteNode {
+            if let data = motionManager.accelerometerData {
+                if fabs(data.acceleration.x) > 0.2 {
+                    ball.physicsBody!.applyForce(CGVector(dx: 100 * CGFloat(data.acceleration.x), dy: 0))
+                }
+            }
+        }
+    }
+    
     func addRandomPlatforms() {
         addMidLevelPlatforms()
         let num = Int.random(in: 2 ... 5)
@@ -42,6 +62,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let y = CGFloat.random(in: frame.minY ... frame.maxY)
             let color = PlayColors.colors[Int.random(in: 1 ... PlayColors.colors.count - 1)]
             let newBar = Bar(color: color, position: CGPoint(x: x, y: y))
+            addChild(newBar.spritenode)
+        }
+    }
+    
+    func addHigher() {
+        let num = Int.random(in: 1 ... 3)
+        for _ in 1...num {
+            let x = CGFloat.random(in: frame.minX + 10 ... frame.maxX - 10)
+            let y = CGFloat.random(in: frame.maxY * 2/3 ... frame.maxY)
+            let newBar = Bar(color: PlayColors.colors[Int.random(in: 1 ... PlayColors.colors.count - 1)], position: CGPoint(x: x, y: y))
+            addChild(newBar.spritenode)
+        }
+    }
+    
+    func addLower() {
+        let num = Int.random(in: 1 ... 3)
+        for _ in 1...num {
+            let x = CGFloat.random(in: frame.minX + 10 ... frame.maxX - 10)
+            let y = CGFloat.random(in: frame.minY ... frame.maxY * 2/3)
+            let newBar = Bar(color: PlayColors.colors[Int.random(in: 1 ... PlayColors.colors.count - 1)], position: CGPoint(x: x, y: y))
             addChild(newBar.spritenode)
         }
     }
@@ -86,7 +126,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if let ball = contact.bodyA.node?.name == "Ball" ? contact.bodyA.node as? SKSpriteNode : contact.bodyB.node as? SKSpriteNode {
                 let bar = contact.bodyB.node == ball ? contact.bodyA.node : contact.bodyB.node
                 changeBallColor(ball: ball, bar: bar as! SKSpriteNode)
+                shiftY()
             }
+        }
+    }
+    
+    func shiftY() {
+        enumerateChildNodes(withName: "Bar") {node,_ in
+            node.run(SKAction.moveBy(x: 0, y: -100, duration: 0.2))
         }
     }
     
@@ -98,10 +145,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if (!ball.color.isEqual(bar.color)) {
             gameOver()
         }
-    }
-    
-    func detectColorMatch(ball: SKSpriteNode) {
-        
     }
     
     func gameOver() {
@@ -118,11 +161,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         
     }
-    
-//    override func didSimulatePhysics() {
-//        <#code#>
-//    }
-    
+
     
     
 }
