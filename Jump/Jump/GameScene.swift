@@ -23,6 +23,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func didMove(to view: SKView) {
         print("start game")
         layoutScene()
+        physicsWorld.gravity = CGVector(dx: 0.0, dy: -7.0)
         motionManager.startAccelerometerUpdates()
 
     }
@@ -33,7 +34,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if !self.intersects(bar) {
                 bar.removeFromParent()
             }
+            
+//            if let ball = self.childNode(withName: "Ball") as? SKSpriteNode {
+//                if (ball.physicsBody?.velocity.dy > 0) && (ball.position.y > self.frame.maxY * 2/3) {
+//                    bar.run(SKAction.moveBy(x: 0, y: -1.0, duration: 0))
+//                }
+//            }
         }
+        
     }
     
     func layoutScene() {
@@ -109,14 +117,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.color = PlayColors.colors[0]
         isWhite = true
         ball.zPosition = 1
+        
         ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width / 2)
+        ball.physicsBody?.isDynamic = true
+        ball.physicsBody?.applyImpulse(CGVector(dx: 0.0, dy: -20.0))
+        
         ball.physicsBody?.categoryBitMask = PhysicsCategories.ballCategory
         ball.physicsBody?.contactTestBitMask = PhysicsCategories.barCategory
 //        ball.physicsBody?.collisionBitMask = PhysicsCategories.barCategory
-        ball.physicsBody?.friction = 0
-        ball.physicsBody?.restitution = 0.3
-        ball.physicsBody?.linearDamping = 0.01
-        ball.physicsBody?.angularDamping = 0
+        ball.physicsBody?.friction = 0.0
+        ball.physicsBody?.restitution = 1.0
+        ball.physicsBody?.linearDamping = 0.0
+        ball.physicsBody?.angularDamping = 0.0
         addChild(ball)
     }
     
@@ -125,26 +137,40 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if contactMask == PhysicsCategories.ballCategory | PhysicsCategories.barCategory {
             if let ball = contact.bodyA.node?.name == "Ball" ? contact.bodyA.node as? SKSpriteNode : contact.bodyB.node as? SKSpriteNode {
                 let bar = contact.bodyB.node == ball ? contact.bodyA.node : contact.bodyB.node
+                
+                if let body = ball.physicsBody {
+                    let dy = body.velocity.dy
+                    if dy > 0 { // going up
+                        body.collisionBitMask &= ~PhysicsCategories.barCategory
+                    }
+                    else { // falling
+                        body.collisionBitMask |= PhysicsCategories.barCategory
+                        body.velocity = CGVector(dx: body.velocity.dx, dy: 800.0)
+                    }
+                }
                 changeBallColor(ball: ball, bar: bar as! SKSpriteNode)
-                shiftY()
+//                shiftY()
+                
             }
         }
     }
     
     func shiftY() {
         enumerateChildNodes(withName: "Bar") {node,_ in
-            node.run(SKAction.moveBy(x: 0, y: -100, duration: 0.2))
+            node.run(SKAction.moveBy(x: 0, y: -200, duration: 0.2))
         }
+        
+        
     }
     
     func changeBallColor(ball: SKSpriteNode, bar: SKSpriteNode) {
-        if isWhite {
+        if isWhite  {
             ball.color = bar.color
             isWhite = false
         }
-        if (!ball.color.isEqual(bar.color)) {
-            gameOver()
-        }
+//        if (!ball.color.isEqual(bar.color)) {
+//            gameOver()
+//        }
     }
     
     func gameOver() {
