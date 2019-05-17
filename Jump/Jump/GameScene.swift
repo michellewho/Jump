@@ -14,6 +14,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var label : SKLabelNode?
     
+//    var score = 0
+    var scoreLabel: ScoreLabel!
+    var score = 0
+    
+    
     var currentColorIndex: Int?
     var isWhite: Bool = false
     
@@ -21,11 +26,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var destX: CGFloat = 0.0
     
     override func didMove(to view: SKView) {
+        print(self.frame.maxY)
         print("start game")
         layoutScene()
+//        addDisks()
         physicsWorld.gravity = CGVector(dx: 0.0, dy: -7.0)
         motionManager.startAccelerometerUpdates()
-
+//        setSco reLabel()
     }
     
     override func update(_ currentTime: TimeInterval) {
@@ -34,22 +41,83 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if !self.intersects(bar) {
                 bar.removeFromParent()
             }
-            
-//            if let ball = self.childNode(withName: "Ball") as? SKSpriteNode {
-//                if (ball.physicsBody?.velocity.dy > 0) && (ball.position.y > self.frame.maxY * 2/3) {
-//                    bar.run(SKAction.moveBy(x: 0, y: -1.0, duration: 0))
-//                }
-//            }
         }
         
+        let ball = childNode(withName: "Ball")
+        if Int(ball!.position.y) < Int(self.frame.maxY - 800) {
+            gameOver()
+        }
+    }
+    
+    func setScoreLabel() {
+        let scoreLabel = SKLabelNode(text: "Score: \(score)")
+        scoreLabel.fontName = "AvenirNext-Bold"
+        scoreLabel.fontSize = 20.0
+        scoreLabel.fontColor = UIColor.white
+        scoreLabel.horizontalAlignmentMode = .right
+        scoreLabel.position = CGPoint(x: frame.size.width - 30, y: self.size.height - 60)
+        addChild(scoreLabel)
+    }
+    
+    func addDisks() {
+//        let wait = SKAction.wait(forDuration: 3, withRange: 2)
+//        let spawn = SKAction.run {
+//            let disk = Disk(position: CGPoint(x: self.frame.midX, y: self.frame.maxY / 4))
+//            self.addChild(disk.spritenode)
+//
+//        }
+//
+//        let sequence = SKAction.sequence([wait, spawn])
+//        self.run(SKAction.repeatForever(sequence))
+        
+        let disk = Disk(position: CGPoint(x: 160, y: 220))
+        self.addChild(disk.spritenode)
     }
     
     func layoutScene() {
         backgroundColor = LayoutProperties.backgroundColor
         physicsWorld.contactDelegate = self
+//        getPlatformPlist()
+//        addPlatforms()
+        scoreLabel = ScoreLabel(frame: frame)
+        addChild(scoreLabel.node)
         addRandomPlatforms()
         addStartingPlatform()
         spawnBall()
+    }
+    
+    func getPlatformPlist() {
+        let levelPlist = Bundle.main.path(forResource: "Level01", ofType: "plist")
+        let levelData = NSDictionary(contentsOfFile: levelPlist!)!
+
+        // Height at which the player ends the level
+//        endLevelY = (levelData["EndY"]! as AnyObject).integerValue!
+        
+        addPlatforms(levelData: levelData)
+    }
+    
+    func addPlatforms(levelData: NSDictionary) {
+        // Add the platforms
+        let platforms = levelData["Platforms"] as! NSDictionary
+        let platformPatterns = platforms["Patterns"] as! NSDictionary
+        let platformPositions = platforms["Positions"] as! [NSDictionary]
+        
+        for platformPosition in platformPositions {
+            let patternX = (platformPosition["x"] as AnyObject).floatValue
+            let patternY = (platformPosition["y"] as AnyObject).floatValue
+            let pattern = platformPosition["pattern"] as! NSString
+            
+            // Look up the pattern
+            let platformPattern = platformPatterns[pattern] as! [NSDictionary]
+            for platformPoint in platformPattern {
+                let x = (platformPoint["x"] as AnyObject).floatValue
+                let y = (platformPoint["y"] as AnyObject).floatValue
+                let positionX = CGFloat(x! + patternX!)
+                let positionY = CGFloat(y! + patternY!)
+                let platformNode = Bar(color: PlayColors.colors[Int.random(in: 1 ... PlayColors.colors.count - 1)], position: CGPoint(x: positionX, y: positionY))
+                addChild(platformNode.spritenode)
+            }
+        }
     }
     
     func processUserMotion(forUpdate currentTime: CFTimeInterval) {
@@ -124,7 +192,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         ball.physicsBody?.categoryBitMask = PhysicsCategories.ballCategory
         ball.physicsBody?.contactTestBitMask = PhysicsCategories.barCategory
-//        ball.physicsBody?.collisionBitMask = PhysicsCategories.barCategory
         ball.physicsBody?.friction = 0.0
         ball.physicsBody?.restitution = 1.0
         ball.physicsBody?.linearDamping = 0.0
@@ -135,6 +202,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func didBegin(_ contact: SKPhysicsContact) {
         let contactMask = contact.bodyB.categoryBitMask | contact.bodyA.categoryBitMask
         if contactMask == PhysicsCategories.ballCategory | PhysicsCategories.barCategory {
+            bounceEffect()
             if let ball = contact.bodyA.node?.name == "Ball" ? contact.bodyA.node as? SKSpriteNode : contact.bodyB.node as? SKSpriteNode {
                 let bar = contact.bodyB.node == ball ? contact.bodyA.node : contact.bodyB.node
                 
@@ -149,18 +217,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     }
                 }
                 changeBallColor(ball: ball, bar: bar as! SKSpriteNode)
-//                shiftY()
+                shiftY()
                 
             }
         }
+    }
+    
+    func bounceEffect() {
+        let bounceSound = SKAction.playSoundFileNamed("bounce.mp3", waitForCompletion: false)
+        run(bounceSound)
     }
     
     func shiftY() {
         enumerateChildNodes(withName: "Bar") {node,_ in
             node.run(SKAction.moveBy(x: 0, y: -200, duration: 0.2))
         }
-        
-        
+        updateScore()
+    }
+    
+    func updateScore() {
+        score += 200
+        scoreLabel.updateScore(score: score)
     }
     
     func changeBallColor(ball: SKSpriteNode, bar: SKSpriteNode) {
@@ -168,23 +245,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             ball.color = bar.color
             isWhite = false
         }
-//        if (!ball.color.isEqual(bar.color)) {
-//            gameOver()
-//        }
     }
     
     func gameOver() {
         print("game over")
-        
-        let wait = SKAction.wait(forDuration: 1)
-        let runBlock = SKAction.run {
-            print(" HELLO ! RUN BLOCK AREA ")
-            let menuScene = MenuScene(size: self.view!.bounds.size)
-            self.view!.presentScene(menuScene)
-        }
-        let seq = SKAction.sequence( [ wait , runBlock ] )
-        self.run( seq , withKey: "scale_me_please")
-        
+    
+        let reveal = SKTransition.fade(withDuration: 1)
+        let endGameScene = GameOver(size: self.view!.bounds.size)
+        self.view!.presentScene(endGameScene, transition: reveal)
         
     }
 
