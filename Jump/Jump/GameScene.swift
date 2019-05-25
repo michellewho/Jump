@@ -26,13 +26,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var destX: CGFloat = 0.0
     
     override func didMove(to view: SKView) {
-        print(self.frame.maxY)
         print("start game")
         layoutScene()
-//        addDisks()
         physicsWorld.gravity = CGVector(dx: 0.0, dy: -7.0)
         motionManager.startAccelerometerUpdates()
-//        setSco reLabel()
+//        setScoreLabel()
     }
     
     override func update(_ currentTime: TimeInterval) {
@@ -59,67 +57,61 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(scoreLabel)
     }
     
-    func addDisks() {
-//        let wait = SKAction.wait(forDuration: 3, withRange: 2)
-//        let spawn = SKAction.run {
-//            let disk = Disk(position: CGPoint(x: self.frame.midX, y: self.frame.maxY / 4))
-//            self.addChild(disk.spritenode)
-//
-//        }
-//
-//        let sequence = SKAction.sequence([wait, spawn])
-//        self.run(SKAction.repeatForever(sequence))
-        
-        let disk = Disk(position: CGPoint(x: 160, y: 220))
-        self.addChild(disk.spritenode)
-    }
-    
     func layoutScene() {
         backgroundColor = LayoutProperties.backgroundColor
         physicsWorld.contactDelegate = self
-//        getPlatformPlist()
-//        addPlatforms()
         scoreLabel = ScoreLabel(frame: frame)
         addChild(scoreLabel.node)
-        addRandomPlatforms()
-        addStartingPlatform()
+        layoutPlatforms()
         spawnBall()
     }
     
-    func getPlatformPlist() {
-        let levelPlist = Bundle.main.path(forResource: "Level01", ofType: "plist")
-        let levelData = NSDictionary(contentsOfFile: levelPlist!)!
-
-        // Height at which the player ends the level
-//        endLevelY = (levelData["EndY"]! as AnyObject).integerValue!
-        
-        addPlatforms(levelData: levelData)
+    func layoutPlatforms() {
+        addStartingPlatform()
+        addLowPlatforms()
+        addMidPlatforms()
+        addHighPlatforms()
     }
     
-    func addPlatforms(levelData: NSDictionary) {
-        // Add the platforms
-        let platforms = levelData["Platforms"] as! NSDictionary
-        let platformPatterns = platforms["Patterns"] as! NSDictionary
-        let platformPositions = platforms["Positions"] as! [NSDictionary]
-        
-        for platformPosition in platformPositions {
-            let patternX = (platformPosition["x"] as AnyObject).floatValue
-            let patternY = (platformPosition["y"] as AnyObject).floatValue
-            let pattern = platformPosition["pattern"] as! NSString
-            
-            // Look up the pattern
-            let platformPattern = platformPatterns[pattern] as! [NSDictionary]
-            for platformPoint in platformPattern {
-                let x = (platformPoint["x"] as AnyObject).floatValue
-                let y = (platformPoint["y"] as AnyObject).floatValue
-                let positionX = CGFloat(x! + patternX!)
-                let positionY = CGFloat(y! + patternY!)
-                let platformNode = Bar(color: PlayColors.colors[Int.random(in: 1 ... PlayColors.colors.count - 1)], position: CGPoint(x: positionX, y: positionY))
-                addChild(platformNode.spritenode)
+    func addHighPlatforms() {
+        var platforms = [SKSpriteNode]()
+        let num = Int.random(in: 1 ... 2)
+        for _ in 1...num {
+            let x = CGFloat.random(in: frame.minX ... frame.maxX)
+            let y = CGFloat.random(in: frame.maxY * 2/3 ... frame.maxY)
+            let newBar = Bar(color: PlayColors.colors[Int.random(in: 1 ... PlayColors.colors.count - 1)], position: CGPoint(x: x, y: y))
+            for node in platforms {
+                if newBar.spritenode.intersects(node) {
+                    print("intersect")
+                    platforms.append(newBar.spritenode)
+                    addChild(newBar.spritenode)
+                    break
+                }
             }
+            addChild(newBar.spritenode)
         }
     }
     
+    func addMidPlatforms() {
+        let num = Int.random(in: 1 ... 2)
+        for _ in 1...num {
+            let x = CGFloat.random(in: frame.minX ... frame.maxX)
+            let y = CGFloat.random(in: frame.maxY * 1/3 ... frame.maxY * 2/3)
+            let newBar = Bar(color: PlayColors.colors[Int.random(in: 1 ... PlayColors.colors.count - 1)], position: CGPoint(x: x, y: y))
+            addChild(newBar.spritenode)
+        }
+    }
+    
+    func addLowPlatforms() {
+        let num = Int.random(in: 1 ... 3)
+        for _ in 1...num {
+            let x = CGFloat.random(in: frame.minX ... frame.maxX)
+            let y = CGFloat.random(in: frame.minY ... frame.maxY * 2/3)
+            let newBar = Bar(color: PlayColors.colors[Int.random(in: 1 ... PlayColors.colors.count - 1)], position: CGPoint(x: x, y: y))
+            addChild(newBar.spritenode)
+        }
+    }
+ 
     func processUserMotion(forUpdate currentTime: CFTimeInterval) {
         if let ball = childNode(withName: "Ball") as? SKSpriteNode {
             if let data = motionManager.accelerometerData {
@@ -142,32 +134,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    func addHigher() {
-        let num = Int.random(in: 1 ... 3)
-        for _ in 1...num {
-            let x = CGFloat.random(in: frame.minX + 10 ... frame.maxX - 10)
-            let y = CGFloat.random(in: frame.maxY * 2/3 ... frame.maxY)
-            let newBar = Bar(color: PlayColors.colors[Int.random(in: 1 ... PlayColors.colors.count - 1)], position: CGPoint(x: x, y: y))
-            addChild(newBar.spritenode)
-        }
-    }
-    
-    func addLower() {
-        let num = Int.random(in: 1 ... 3)
-        for _ in 1...num {
-            let x = CGFloat.random(in: frame.minX + 10 ... frame.maxX - 10)
-            let y = CGFloat.random(in: frame.minY ... frame.maxY * 2/3)
-            let newBar = Bar(color: PlayColors.colors[Int.random(in: 1 ... PlayColors.colors.count - 1)], position: CGPoint(x: x, y: y))
-            addChild(newBar.spritenode)
-        }
-    }
-    
     func addMidLevelPlatforms() {
         let num = Int.random(in: 1 ... 3)
         for _ in 1...num {
             let x = CGFloat.random(in: frame.minX ... frame.maxX)
             let y = CGFloat.random(in: frame.maxY * 1/4 ... frame.maxY * 3/4)
             let newBar = Bar(color: PlayColors.colors[Int.random(in: 1 ... PlayColors.colors.count - 1)], position: CGPoint(x: x, y: y))
+            addChild(newBar.spritenode)
+        }
+    }
+    
+    func addNewPlatforms() {
+        let num = Int.random(in: 1 ... 2)
+        for _ in 1...num {
+            let x = CGFloat.random(in: frame.minX ... frame.maxX)
+            let newBar = Bar(color: PlayColors.colors[Int.random(in: 1 ... PlayColors.colors.count - 1)], position: CGPoint(x: x, y: self.frame.maxY + 10.0))
             addChild(newBar.spritenode)
         }
     }
@@ -202,10 +183,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func didBegin(_ contact: SKPhysicsContact) {
         let contactMask = contact.bodyB.categoryBitMask | contact.bodyA.categoryBitMask
         if contactMask == PhysicsCategories.ballCategory | PhysicsCategories.barCategory {
-            bounceEffect()
             if let ball = contact.bodyA.node?.name == "Ball" ? contact.bodyA.node as? SKSpriteNode : contact.bodyB.node as? SKSpriteNode {
                 let bar = contact.bodyB.node == ball ? contact.bodyA.node : contact.bodyB.node
-                
+                bounceEffect()
                 if let body = ball.physicsBody {
                     let dy = body.velocity.dy
                     if dy > 0 { // going up
@@ -217,8 +197,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     }
                 }
                 changeBallColor(ball: ball, bar: bar as! SKSpriteNode)
+                addNewPlatforms()
                 shiftY()
-                
             }
         }
     }
@@ -241,10 +221,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func changeBallColor(ball: SKSpriteNode, bar: SKSpriteNode) {
-        if isWhite  {
-            ball.color = bar.color
-            isWhite = false
-        }
+//        if isWhite  {
+//            ball.color = bar.color
+//            isWhite = false
+//        }
+        ball.color = bar.color
     }
     
     func gameOver() {

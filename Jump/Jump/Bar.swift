@@ -20,6 +20,7 @@ class Bar {
         spritenode.physicsBody?.categoryBitMask = PhysicsCategories.barCategory
         spritenode.physicsBody?.contactTestBitMask = PhysicsCategories.ballCategory
         spritenode.physicsBody?.collisionBitMask = 0
+        spritenode.physicsBody?.usesPreciseCollisionDetection = true
         
         spritenode.name = "Bar"
         spritenode.position = position
