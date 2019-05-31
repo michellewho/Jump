@@ -193,7 +193,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     }
                     else { // falling
                         body.collisionBitMask |= PhysicsCategories.barCategory
-                        body.velocity = CGVector(dx: body.velocity.dx, dy: 800.0)
+                        body.velocity = CGVector(dx: body.velocity.dx , dy: 800.0)
                     }
                 }
                 changeBallColor(ball: ball, bar: bar as! SKSpriteNode)
@@ -205,7 +205,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func bounceEffect() {
         let bounceSound = SKAction.playSoundFileNamed("bounce.mp3", waitForCompletion: false)
-        run(bounceSound)
+        if (SoundProperties.soundOn == true) {
+            run(bounceSound)
+        }
     }
     
     func shiftY() {

@@ -17,6 +17,19 @@ class MenuScene: SKScene {
         backgroundColor = LayoutProperties.backgroundColor
         addLogo()
         addLabels()
+        addSoundOnOff()
+    }
+    
+    func addSoundOnOff() {
+        let sound = SKSpriteNode(imageNamed: "soundon")
+        if SoundProperties.soundOn == false {
+            let sound = SKSpriteNode(imageNamed: "soundoff")
+        }
+        sound.size = CGSize(width: frame.size.width / 8, height: frame.size.width / 8)
+        sound.position = CGPoint(x: frame.size.width - 40, y: self.size.height - 60)
+        sound.name = "sound"
+        sound.isUserInteractionEnabled = false
+        addChild(sound)
     }
     
     func addLogo() {
@@ -51,8 +64,22 @@ class MenuScene: SKScene {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        let gameScene = GameScene(size: view!.bounds.size)
-        view!.presentScene(gameScene)
+        let touch:UITouch = touches.first!
+        let positionInScene = touch.location(in: self)
+        let touchedNode = self.atPoint(positionInScene) as? SKSpriteNode
+        if let name = touchedNode?.name {
+            if name == "sound" {
+                SoundProperties.soundOn = !SoundProperties.soundOn
+                if (SoundProperties.soundOn == true) {
+                    touchedNode?.texture = SKTexture.init(imageNamed: "soundon")
+                } else {
+                    touchedNode?.texture = SKTexture.init(imageNamed: "soundoff")
+                }
+            }
+        } else {
+            let gameScene = GameScene(size: view!.bounds.size)
+            view!.presentScene(gameScene)
+        }
     }
 
 }
