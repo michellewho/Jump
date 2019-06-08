@@ -26,7 +26,7 @@ class Bar {
         spritenode.position = position
         spritenode.zPosition = 3
 //        spritenode.physicsBody?.friction = 0
-//        spritenode.physicsBody?.restitution = 1.0
+        spritenode.physicsBody?.restitution = 1.0
         spritenode.physicsBody?.isDynamic = false
 //        spritenode.physicsBody?.affectedByGravity = false
     }

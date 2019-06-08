@@ -10,14 +10,18 @@ import SpriteKit
 import GameplayKit
 import CoreMotion
 
+
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var label : SKLabelNode?
     
-//    var score = 0
+    var ball = SKSpriteNode()
+    
     var scoreLabel: ScoreLabel!
     var score = 0
+    var bounceHeight: CGFloat = 0.0
     
+    var currentPlatformY: CGFloat = 0.0
     
     var currentColorIndex: Int?
     var isWhite: Bool = false
@@ -25,25 +29,45 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let motionManager = CMMotionManager()
     var destX: CGFloat = 0.0
     
+    var touchLocation = CGPoint(x: 0, y: 0)
+    
+    private var currentNode: SKNode?
+    
     override func didMove(to view: SKView) {
         print("start game")
         layoutScene()
-        physicsWorld.gravity = CGVector(dx: 0.0, dy: -7.0)
+//        physicsWorld.gravity = CGVector(dx: 0.0, dy: -7.0)
         motionManager.startAccelerometerUpdates()
 //        setScoreLabel()
     }
     
     override func update(_ currentTime: TimeInterval) {
-        processUserMotion(forUpdate: currentTime)
+//        processUserMotion(forUpdate: currentTime)
         enumerateChildNodes(withName: "Bar") {bar,_ in
             if !self.intersects(bar) {
                 bar.removeFromParent()
             }
         }
-        
-        let ball = childNode(withName: "Ball")
-        if Int(ball!.position.y) < Int(self.frame.maxY - 800) {
+        if Int(ball.position.y) < Int(-1 * self.frame.maxY) {
             gameOver()
+        }
+        
+        if (abs(frame.maxY / 4 - (ball.position.y)) > bounceHeight) {
+            bounceHeight = abs(frame.maxY / 4 - (ball.position.y))
+        }
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for touch in touches{
+            touchLocation = touch.location(in: self)
+            ball.position.x = (touchLocation.x)
+        }
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for touch in touches{
+            touchLocation = touch.location(in: self)
+            ball.position.x = (touchLocation.x)
         }
     }
     
@@ -60,17 +84,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func layoutScene() {
         backgroundColor = LayoutProperties.backgroundColor
         physicsWorld.contactDelegate = self
+        currentPlatformY = self.frame.maxY * -1.0
         scoreLabel = ScoreLabel(frame: frame)
         addChild(scoreLabel.node)
         layoutPlatforms()
         spawnBall()
+        
     }
     
     func layoutPlatforms() {
-        addStartingPlatform()
-        addLowPlatforms()
-        addMidPlatforms()
-        addHighPlatforms()
+        addStartingLayout()
     }
     
     func addHighPlatforms() {
@@ -113,13 +136,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
  
     func processUserMotion(forUpdate currentTime: CFTimeInterval) {
-        if let ball = childNode(withName: "Ball") as? SKSpriteNode {
-            if let data = motionManager.accelerometerData {
-                if fabs(data.acceleration.x) > 0.2 {
-                    ball.physicsBody!.applyForce(CGVector(dx: 100 * CGFloat(data.acceleration.x), dy: 0))
-                }
+        if let data = motionManager.accelerometerData {
+            if fabs(data.acceleration.x) > 0.2 {
+                ball.physicsBody!.applyForce(CGVector(dx: 50 * CGFloat(data.acceleration.x), dy: 0))
             }
         }
+    
     }
     
     func addRandomPlatforms() {
@@ -148,18 +170,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let num = Int.random(in: 1 ... 2)
         for _ in 1...num {
             let x = CGFloat.random(in: frame.minX ... frame.maxX)
-            let newBar = Bar(color: PlayColors.colors[Int.random(in: 1 ... PlayColors.colors.count - 1)], position: CGPoint(x: x, y: self.frame.maxY + 10.0))
+            let newBar = Bar(color: PlayColors.colors[Int.random(in: 1 ... PlayColors.colors.count - 1)], position: CGPoint(x: x, y: self.frame.maxY * 1.25))
             addChild(newBar.spritenode)
         }
     }
     
-    func addStartingPlatform() {
-        let bar = Bar(color: PlayColors.colors[Int.random(in: 1 ... PlayColors.colors.count - 1)], position: CGPoint(x: frame.midX, y: frame.maxY / 4))
-        addChild(bar.spritenode)
+    func addStartingLayout() {
+        let bar1 = Bar(color: PlayColors.colors[Int.random(in: 1 ... PlayColors.colors.count - 1)], position: CGPoint(x: frame.midX, y: frame.maxY / 4))
+        
+        let bar2 = Bar(color: PlayColors.colors[Int.random(in: 1 ... PlayColors.colors.count - 1)], position: CGPoint(x: frame.maxX * 1/4, y: frame.midY))
+        
+        let bar3 = Bar(color: PlayColors.colors[Int.random(in: 1 ... PlayColors.colors.count - 1)], position: CGPoint(x: frame.maxX * 3/4, y: frame.midY + 20.0))
+        
+        addChild(bar1.spritenode)
+        addChild(bar2.spritenode)
+        addChild(bar3.spritenode)
+        
+        let star1 = Star(position: CGPoint(x: bar1.spritenode.position.x, y: bar1.spritenode.position.y + 40.0))
+        let star2 = Star(position: CGPoint(x: bar3.spritenode.position.x, y: bar3.spritenode.position.y + 40.0))
+        
+        addChild(star1.spritenode)
+        addChild(star2.spritenode)
+        
     }
     
     func spawnBall() {
-        let ball = SKSpriteNode(texture: SKTexture(imageNamed: "ball"), size: CGSize(width: 30.0, height: 30.0))
+        ball = SKSpriteNode(texture: SKTexture(imageNamed: "ball"), size: CGSize(width: 30.0, height: 30.0))
         ball.name = "Ball"
         ball.position = CGPoint(x: frame.midX, y: frame.maxY * 3/4)
         ball.colorBlendFactor = 1
@@ -169,13 +205,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width / 2)
         ball.physicsBody?.isDynamic = true
-        ball.physicsBody?.applyImpulse(CGVector(dx: 0.0, dy: -20.0))
+        ball.physicsBody?.applyImpulse(CGVector(dx: 0.0, dy: -50.0))
+        ball.physicsBody?.mass = 0.2
         
         ball.physicsBody?.categoryBitMask = PhysicsCategories.ballCategory
-        ball.physicsBody?.contactTestBitMask = PhysicsCategories.barCategory
+        ball.physicsBody?.contactTestBitMask = PhysicsCategories.barCategory | PhysicsCategories.starCategory
+        ball.physicsBody?.usesPreciseCollisionDetection = true
+        ball.physicsBody?.collisionBitMask = 0
         ball.physicsBody?.friction = 0.0
         ball.physicsBody?.restitution = 1.0
-        ball.physicsBody?.linearDamping = 0.0
+        ball.physicsBody?.linearDamping = 0.1
         ball.physicsBody?.angularDamping = 0.0
         addChild(ball)
     }
@@ -183,50 +222,86 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func didBegin(_ contact: SKPhysicsContact) {
         let contactMask = contact.bodyB.categoryBitMask | contact.bodyA.categoryBitMask
         if contactMask == PhysicsCategories.ballCategory | PhysicsCategories.barCategory {
-            if let ball = contact.bodyA.node?.name == "Ball" ? contact.bodyA.node as? SKSpriteNode : contact.bodyB.node as? SKSpriteNode {
-                let bar = contact.bodyB.node == ball ? contact.bodyA.node : contact.bodyB.node
-                bounceEffect()
-                if let body = ball.physicsBody {
+            if let contactBall = contact.bodyA.node?.name == "Ball" ? contact.bodyA.node as? SKSpriteNode : contact.bodyB.node as? SKSpriteNode {
+                let bar = contact.bodyB.node == contactBall ? contact.bodyA.node : contact.bodyB.node
+                soundEffect(sound: "bounce")
+                if let body = contactBall.physicsBody {
                     let dy = body.velocity.dy
-                    if dy > 0 { // going up
+                    if (dy > 0) || (body.node!.intersects(bar!)) && (body.node!.position.y - 15.0 < bar!.position.y + 15.0) {
                         body.collisionBitMask &= ~PhysicsCategories.barCategory
-                    }
-                    else { // falling
+                    } else {
+                        // Allow collisions if the hero is falling
                         body.collisionBitMask |= PhysicsCategories.barCategory
-                        body.velocity = CGVector(dx: body.velocity.dx , dy: 800.0)
                     }
                 }
-                changeBallColor(ball: ball, bar: bar as! SKSpriteNode)
+                changeBallColor(ball: contactBall, bar: bar as! SKSpriteNode)
                 addNewPlatforms()
-                shiftY()
+                
+            }
+        }
+        
+        if contactMask == PhysicsCategories.ballCategory | PhysicsCategories.starCategory {
+            if let contactBall = contact.bodyA.node?.name == "Ball" ? contact.bodyA.node as? SKSpriteNode : contact.bodyB.node as? SKSpriteNode {
+                let star = contact.bodyB.node == contactBall ? contact.bodyA.node : contact.bodyB.node
+                soundEffect(sound: "bling")
+                updateScore()
+                star?.removeFromParent()
             }
         }
     }
     
-    func bounceEffect() {
-        let bounceSound = SKAction.playSoundFileNamed("bounce.mp3", waitForCompletion: false)
-        if (SoundProperties.soundOn == true) {
-            run(bounceSound)
+    func didEnd(_ contact: SKPhysicsContact) {
+        let contactMask = contact.bodyB.categoryBitMask | contact.bodyA.categoryBitMask
+        if contactMask == PhysicsCategories.ballCategory | PhysicsCategories.barCategory {
+            if let contactBall = contact.bodyA.node?.name == "Ball" ? contact.bodyA.node as? SKSpriteNode : contact.bodyB.node as? SKSpriteNode {
+                let bar = contact.bodyB.node == contactBall ? contact.bodyA.node : contact.bodyB.node
+                soundEffect(sound: "bounce")
+                if let body = contactBall.physicsBody {
+                    let dy = body.velocity.dy
+                    if (dy > 0) || (body.node!.intersects(bar!)) && (body.node!.position.y - 15.0 < bar!.position.y + 15.0) {
+                        body.collisionBitMask &= ~PhysicsCategories.barCategory
+                    } else {
+                        // Allow collisions if the hero is falling
+                        body.collisionBitMask |= PhysicsCategories.barCategory
+                    }
+                }
+                changeBallColor(ball: contactBall, bar: bar as! SKSpriteNode)
+                addNewPlatforms()
+            }
+        }
+    }
+    
+    func soundEffect(sound: String) {
+        switch sound {
+        case "bounce":
+            let bounceSound = SKAction.playSoundFileNamed("bounce.mp3", waitForCompletion: false)
+            if (SoundProperties.soundOn == true) {
+                run(bounceSound)
+            }
+            print("bounce")
+        case "bling":
+            print("bling")
+            let blingSound = SKAction.playSoundFileNamed("bling.wav", waitForCompletion: false)
+            if (SoundProperties.soundOn == true) {
+                run(blingSound)
+            }
+        default:
+            print("no sound specified")
         }
     }
     
     func shiftY() {
         enumerateChildNodes(withName: "Bar") {node,_ in
-            node.run(SKAction.moveBy(x: 0, y: -200, duration: 0.2))
+            node.run(SKAction.moveBy(x: 0, y: -500, duration: 0.2))
         }
-        updateScore()
     }
     
     func updateScore() {
-        score += 200
+        score += 1
         scoreLabel.updateScore(score: score)
     }
     
     func changeBallColor(ball: SKSpriteNode, bar: SKSpriteNode) {
-//        if isWhite  {
-//            ball.color = bar.color
-//            isWhite = false
-//        }
         ball.color = bar.color
     }
     
@@ -238,7 +313,5 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.view!.presentScene(endGameScene, transition: reveal)
         
     }
-
-    
     
 }

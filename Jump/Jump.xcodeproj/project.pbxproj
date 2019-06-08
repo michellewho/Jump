@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F4973CA5228CB7FA008B7220 /* Level01.plist in Resources */ = {isa = PBXBuildFile; fileRef = F4973CA4228CB7FA008B7220 /* Level01.plist */; };
+		F469D70622AA071500798CC2 /* Star.swift in Sources */ = {isa = PBXBuildFile; fileRef = F469D70522AA071500798CC2 /* Star.swift */; };
+		F469D70822AA0FA400798CC2 /* bling.wav in Resources */ = {isa = PBXBuildFile; fileRef = F469D70722AA0FA400798CC2 /* bling.wav */; };
 		F4973CA7228E101C008B7220 /* GameOver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4973CA6228E101C008B7220 /* GameOver.swift */; };
 		F4973CA9228F3AC9008B7220 /* bounce.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F4973CA8228F3AC9008B7220 /* bounce.mp3 */; };
 		F4973CAB228F3FBB008B7220 /* Disk.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4973CAA228F3FBB008B7220 /* Disk.swift */; };
@@ -26,7 +27,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		F4973CA4228CB7FA008B7220 /* Level01.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Level01.plist; sourceTree = "<group>"; };
+		F469D70522AA071500798CC2 /* Star.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Star.swift; sourceTree = "<group>"; };
+		F469D70722AA0FA400798CC2 /* bling.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bling.wav; sourceTree = "<group>"; };
 		F4973CA6228E101C008B7220 /* GameOver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameOver.swift; sourceTree = "<group>"; };
 		F4973CA8228F3AC9008B7220 /* bounce.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = bounce.mp3; sourceTree = "<group>"; };
 		F4973CAA228F3FBB008B7220 /* Disk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Disk.swift; sourceTree = "<group>"; };
@@ -81,12 +83,13 @@
 				F4C0AD8D225E73C3004254C8 /* GameScene.sks */,
 				F4C0AD8F225E73C3004254C8 /* Actions.sks */,
 				F4C0AD91225E73C3004254C8 /* GameScene.swift */,
+				F469D70722AA0FA400798CC2 /* bling.wav */,
 				F4973CAC228F4AA3008B7220 /* ScoreLabel.swift */,
+				F469D70522AA071500798CC2 /* Star.swift */,
 				F4C0AD93225E73C3004254C8 /* GameViewController.swift */,
 				F4C0AD95225E73C3004254C8 /* Main.storyboard */,
 				F4C0AD98225E73C4004254C8 /* Assets.xcassets */,
 				F4C0AD9A225E73C4004254C8 /* LaunchScreen.storyboard */,
-				F4973CA4228CB7FA008B7220 /* Level01.plist */,
 				F4C0AD9D225E73C4004254C8 /* Info.plist */,
 				F49B5109225EDC3800E8E927 /* MenuScene.swift */,
 				F49B510B225EDEE000E8E927 /* Settings.swift */,
@@ -156,8 +159,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4C0AD97225E73C3004254C8 /* Main.storyboard in Resources */,
+				F469D70822AA0FA400798CC2 /* bling.wav in Resources */,
 				F4C0AD8E225E73C3004254C8 /* GameScene.sks in Resources */,
-				F4973CA5228CB7FA008B7220 /* Level01.plist in Resources */,
 				F4973CA9228F3AC9008B7220 /* bounce.mp3 in Resources */,
 				F4C0AD99225E73C4004254C8 /* Assets.xcassets in Resources */,
 				F4C0AD9C225E73C4004254C8 /* LaunchScreen.storyboard in Resources */,
@@ -175,6 +178,7 @@
 				F4973CAB228F3FBB008B7220 /* Disk.swift in Sources */,
 				F4C0AD92225E73C3004254C8 /* GameScene.swift in Sources */,
 				F49B510E2269150300E8E927 /* Bar.swift in Sources */,
+				F469D70622AA071500798CC2 /* Star.swift in Sources */,
 				F4973CA7228E101C008B7220 /* GameOver.swift in Sources */,
 				F49B510A225EDC3800E8E927 /* MenuScene.swift in Sources */,
 				F4C0AD94225E73C3004254C8 /* GameViewController.swift in Sources */,

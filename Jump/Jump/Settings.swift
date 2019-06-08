@@ -20,7 +20,7 @@ enum PhysicsCategories {
     static let none: UInt32 = 0
     static let ballCategory: UInt32 = 0x1 << 1       // 01
     static let barCategory: UInt32 = 0x1 << 2  // 10
-    static let disk: UInt32 = 0x1 << 3
+    static let starCategory: UInt32 = 0x1 << 3
 }
 
 enum PlayColors {
